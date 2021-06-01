@@ -90,7 +90,7 @@ contract LiquidityMiningView {
         uint256 balance;
     }
 
-    function getUserRewardInfos(address _liquidityMining, address _staker)
+    function getUserRewardInfos(address _liquidityMining, address _sender, address _staker)
     external view
     returns (
         UserCommonRewardInfo memory userCommonRewardInfo,
@@ -120,7 +120,7 @@ contract LiquidityMiningView {
                 unlocked,
                 total,
                 liquidityMining.userPoolInfo(pid, _staker).amount,
-                IERC20(pools[i].token).balanceOf(msg.sender)
+                _sender == address(0) ? 0 : IERC20(pools[i].token).balanceOf(_sender)
             );
             userPoolRewardInfos[i] = info;
         }

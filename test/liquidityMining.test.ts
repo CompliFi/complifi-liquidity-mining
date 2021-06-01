@@ -509,5 +509,25 @@ describe('LiquidityMining', function() {
 
             const liquidityUserRewardInfos = await this.liquidityMiningView.getUserRewardInfos(this.liquidityMining.address, this.alice.address);
         });
+
+
+        it('should calculate unlocked value on small amounts', async function() {
+            this.liquidityMining =  await this.LiquidityMining.deploy(
+                this.rewardToken.address,
+                this.reservoir.address,
+                '588000000000000',
+                this.referenceBlock,
+                this.referenceBlock + 100
+            );
+            await this.prepareReservoir();
+            await this.liquidityMining.setUnlocks([this.UNLOCK0, this.UNLOCK1, this.UNLOCK2], [334,333,333]);
+            await this.liquidityMining.add('100', this.poolToken.address, true);
+            await this.poolToken.connect(this.alice).approve(this.liquidityMining.address, '1000');
+
+            // this.alice deposits 10 LPs at block 1310
+            await advanceBlockTo(this.referenceBlock + 3);
+            expect(await this.liquidityMining.connect(this.alice).calcUnlocked("930999899999999")).to.equal('310953966599999');
+            expect(await this.liquidityMining.connect(this.alice).calcUnlocked("3")).to.equal('1');
+        });
     });
 });
